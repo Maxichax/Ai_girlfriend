@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 
 def get_memory(type :str = "chatlogs",name : str = None) -> str:
     assert name != None or name != "", "missing model name"
@@ -83,3 +84,19 @@ def euthanize_model(settings_file: str = "settings.json"):
         print(f"File /memory/{name}Screen.txt deleted successfully.")
     except:
         pass
+
+def clean_directory_cache(folder_path, keep_filename = ""):
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+
+        # Skip the file we want to keep
+        if filename == keep_filename:
+            continue
+
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.remove(file_path)   # remove file or symlink
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)  # remove directory and contents
+        except Exception as e:
+            print(f"Failed to delete {file_path}. Reason: {e}")

@@ -40,12 +40,12 @@ def get_openai_settings(settings_file: str = "settings.json"):
         assert False, f"File does not exist: {settings_file}"
         
     # Opening user api_key and description settings form json
-    with open("settings.json", "r") as f:
+    with open(settings_file, "r") as f:
             settings = json.load(f)
 
     #gets the needed info for openai api uses from the .json
     client = openai.OpenAI(api_key=settings["user"]["openAI_apiKey"])
-    description = "".join(settings["model_description"])
+    description = "\n".join(settings["model_description"])
     text_model = settings["model_settings"]["openAI_text_model"]
     name = os.path.splitext(settings["model_files"]["name"])[0]
     
@@ -77,7 +77,6 @@ def chat(client: openai.OpenAI=None, description: str=None,text_model: str=None,
     
      #send a request with user texts to openai
     if useMemory == True:
-        text = response.output_text
         response = client.responses.create(
         model=text_model,
         instructions=description,
@@ -93,7 +92,6 @@ def chat(client: openai.OpenAI=None, description: str=None,text_model: str=None,
         reasoning={"effort": "minimal"}, #for max speed
         )
     else:
-        text = response.output_text
         response = client.responses.create(
         model=text_model,
         instructions=description,
@@ -138,7 +136,7 @@ def voice(client: openai.OpenAI=None, text: str=None,name : str = "speech") -> N
         response.stream_to_file(f"./audio_input/{name}.wav")
 
 
-def stream_chat(client: openai.OpenAI=None, description: str=None,text_model: str=None,user_input: str=None,name : str = None,useMemory : bool = True) -> str:
+def stream_chat_voice(client: openai.OpenAI=None, description: str=None,text_model: str=None,user_input: str=None,name : str = None,useMemory : bool = True) -> str:
     """
     Streams chat responses from an OpenAI client, processes the output in real-time, and generates and converts voice audio for each response segment.
         client (openai.OpenAI): The OpenAI client instance to use for generating responses. Must not be None.

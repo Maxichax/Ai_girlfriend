@@ -45,3 +45,6 @@ def convertToAI(input_path=None,output_path=None):
         rvc.infer_dir(input_dir="./audio_input",output_dir="./audio_output")
     else:
         rvc.infer_file(input_path,output_path)
+
+def unload_rvc_settings():
+    rvc.unload_model()
