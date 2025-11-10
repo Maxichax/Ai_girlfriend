@@ -23,14 +23,17 @@ py -3.10 -m venv venv
 REM Activate virtual environment
 call venv\Scripts\activate
 
+REM Install required packages
+echo [INFO] Installing rvc dependencies...
+pip install rvc-python
+pip install torch==2.1.1+cu118 torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+
 REM Upgrade pip and install wheel + setuptools first
 echo [INFO] Upgrading pip, wheel, setuptools...
 pip install --upgrade pip wheel setuptools
 
 REM Install required packages
-echo [INFO] Installing dependencies...
-pip install rvc-python
-pip install torch==2.1.1+cu118 torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+echo [INFO] Installing other dependencies...
 pip install openai
 pip install pillow
 pip install mss
