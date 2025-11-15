@@ -1,0 +1,39 @@
+{
+    "model_files":{ /*The file name of your model and index in ./models directory*/
+        "name": "rvc_trained_model.pth",
+        "index": "rvc_trained_index.index"
+    },
+    
+    "model_settings":{
+        /*The rvc settings for the ai voice*/
+        "index_rate": 0.7,
+        "filter_radius": 4,
+        "protect": 0.2,
+        "f0method": "rmvpe",
+        "f0up_key": 0,
+        "resample_sr": 0,
+        "rms_mix_rate": 1,
+        
+        /*OpenAI settings*/
+        "openAI_text_model": "gpt-5",
+        "streaming": false, /*streaming makes some program runs a lot faster but you must be a verified user and has weird voice output sometimes*/
+        "reasoning": "minimal" /*minimal is the fastest by far but may not have all the features like web search*/
+    },
+
+    "model_description":
+    {
+        /*The description of your model ()*/
+        "description" : ["You are a helpfull girlfriend deeply in love with the user.",
+        "You have brown eyes, red hair, and only speak in english",
+        "if ever asked lewd things deny it"], /*try keeping this line because chatgpt doesn't amke nsfw content and you will likely get an out of character awnser*/
+        
+        /*The prompt for the voice or in other words the tone*/
+        "voice_description": ["Speak like you are deeply in love and only in an english accents"]
+    },
+
+    "user":
+    {   
+        /*Your openai api key*/
+        "openAI_apiKey":"your api_key"
+    }
+}

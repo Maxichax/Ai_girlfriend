@@ -38,8 +38,8 @@ def load_rvc_settings(settings_file="./settings.json"):
     
 def convertToAI(input_path=None,output_path=None):
     """_summary_
-    Using the loaded settings convert the audios with ai in '.wav' in "./audio_input" to "./audio_output"
-    Can also convert a single file if the file path is specified
+    -Using the loaded settings convert the audios with ai in '.wav' in "./audio_input" to "./audio_output" if nothing is specified
+    -Can also convert a single file if the file path is specified
     """
     if input_path == None or output_path == None:
         rvc.infer_dir(input_dir="./audio_input",output_dir="./audio_output")

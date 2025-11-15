@@ -1,5 +1,4 @@
 from model import Model
 
-kasane_teto = Model("settings.json")
-kasane_teto.delete_memory()
-kasane_teto.run_chat()
+kasane_teto = Model("./settings/teto.json")
+kasane_teto.run_chat_voice()

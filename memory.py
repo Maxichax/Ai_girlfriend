@@ -69,7 +69,7 @@ def euthanize_model(settings_file: str = "settings.json"):
     except FileNotFoundError:
         assert False, f"File does not exist: {settings_file}"
         
-    with open("settings.json", "r") as f:
+    with open(settings_file, "r") as f:
         settings = json.load(f)
         
     name = os.path.splitext(settings["model_files"]["name"])[0]

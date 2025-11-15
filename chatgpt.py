@@ -26,10 +26,10 @@ def get_openai_settings(settings_file: str = "settings.json"):
     gets the needed info for openai api uses from the .json, checks if the api key is valid and creates a model name.
     
     Args:
-        settings_file (str, optional): _description_. Defaults to "settings.json".
+        settings_file (str): _description_. Defaults to "settings.json".
 
     Returns:
-        tuple (client,description,text_model,name):  _description_ | client: openAI client object| description: model description | text_model: openAI's text model name | name: name of the model
+        tuple (client,description,voice_description,text_model,name,stream,reasoning):  | _description_ | client: openAI client object| description: model description | text_model: openAI's text model name | name: name of the model
     """
     #check if the settings file exists
     
@@ -45,25 +45,28 @@ def get_openai_settings(settings_file: str = "settings.json"):
 
     #gets the needed info for openai api uses from the .json
     client = openai.OpenAI(api_key=settings["user"]["openAI_apiKey"])
-    description = "\n".join(settings["model_description"])
+    description = "\n".join(settings["model_description"]["description"])
+    voice_description = "\n".join(settings["model_description"]["voice_description"])
     text_model = settings["model_settings"]["openAI_text_model"]
     name = os.path.splitext(settings["model_files"]["name"])[0]
+    stream = settings["model_settings"]["streaming"]
+    reasoning = settings["model_settings"]["reasoning"]
     
     #Makes a request to see if the api_key is valid
     try:
-        response = client.responses.create(
+        client.responses.create(
             model="gpt-5-nano", #least expensive model
             instructions=" ",
             input=" ",
-            max_output_tokens=16 #minimum tokrn value
+            max_output_tokens=16 #minimum token value
         )
         print("API key is valid!")
     except Exception as e:
-        assert False, f"An error occurred: {e}"
+        assert False, f"An error occurred: {e} Try checking your connection or API key"
     
-    return client,description,text_model,name
+    return client,description,voice_description,text_model,name,stream,reasoning
 
-def chat(client: openai.OpenAI=None, description: str=None,text_model: str=None,user_input: str=None,name : str = None,useMemory : bool = True) -> str:
+def chat(client: openai.OpenAI=None, description: str=None,text_model: str=None,user_input: str=None,name : str = None,streaming : bool = False,additional_instructions: str = "",reason : str = "minimal"):
     
     #assertions
     if client == None:
@@ -76,40 +79,32 @@ def chat(client: openai.OpenAI=None, description: str=None,text_model: str=None,
         assert False, "missing user input"
     
      #send a request with user texts to openai
-    if useMemory == True:
-        response = client.responses.create(
-        model=text_model,
-        instructions=description,
-        input=[
-        {
-            "role": "assistant",
-            "content": get_memory("chatlogs",name)
-        },
-        {
-            "role": "user",
-            "content": user_input
-        }],
-        reasoning={"effort": "minimal"}, #for max speed
-        )
+    response = client.responses.create(
+    model=text_model,
+    instructions=description + ' ' + additional_instructions,
+    input=[
+    {
+        "role": "assistant",
+        "content": get_memory("chatlogs",name)
+    },
+    {
+        "role": "user",
+        "content": user_input
+    }],
+    reasoning={"effort": reason},
+    stream= streaming
+    )
+    if streaming == True:
+        for event in response:
+            if event.type == "response.output_text.delta":
+                yield event.delta
     else:
-        response = client.responses.create(
-        model=text_model,
-        instructions=description,
-        input=[
-        {
-            "role": "user",
-            "content": user_input
-        }],
-        reasoning={"effort": "minimal"},
-        )
-    text = response.output_text
-    print(text)
-    
-    return text
+        text = response.output_text
+        return text
 
 
 
-def voice(client: openai.OpenAI=None, text: str=None,name : str = "speech") -> None:
+def voice(client: openai.OpenAI=None, text: str=None,description : str = None, name : str = "speech") -> None:
     """_summary_
     Makes an audio file with the openAI's tts
     Args:
@@ -131,13 +126,14 @@ def voice(client: openai.OpenAI=None, text: str=None,name : str = "speech") -> N
         model="gpt-4o-mini-tts",
         voice="coral",
         input=text,
-        instructions="Speak like a tsundere but not too angry more like in a moking way. Speak only in english even foreign words",
+        instructions=description,
     ) as response:
         response.stream_to_file(f"./audio_input/{name}.wav")
 
 
 def stream_chat_voice(client: openai.OpenAI=None, description: str=None,text_model: str=None,user_input: str=None,name : str = None,useMemory : bool = True) -> str:
     """
+    [DEPRECATED]
     Streams chat responses from an OpenAI client, processes the output in real-time, and generates and converts voice audio for each response segment.
         client (openai.OpenAI): The OpenAI client instance to use for generating responses. Must not be None.
         description (str): System instructions or description for the assistant. Must not be None.
